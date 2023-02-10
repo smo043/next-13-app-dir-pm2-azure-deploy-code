@@ -1,0 +1,40 @@
+{
+  "name": "next-js-azure-deploy-code",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deploy Next.JS application to Azure App Service as Code",
+  "author": {
+    "name": "Mohammed Salman",
+    "url": "https://github.com/smo043/next-js-azure-deploy-code.git"
+  },
+  "scripts": {
+    "build": "next build",
+    "check:types": "tsc -p tsconfig.json --noEmit",
+    "dev": "next dev --port 3002",
+    "format": "yarn format:nowrite --write",
+    "format:check": "yarn format:nowrite --list-different",
+    "format:nowrite": "prettier --ignore-path .gitignore \"**/*.+(js|ts|jsx|tsx|html|css|scss|json)\"",
+    "lint": "next lint",
+    "prepare": "node -e \"try { require('husky').install() } catch(e) { if (e.code !== 'MODULE_NOT_FOUND') throw e}\"",
+    "start": "pm2 list && pm2-runtime --no-demon start ecosystem.config.js",
+    "pre:commit": "run-p check:types format:check lint"
+  },
+  "dependencies": {
+    "@next/font": "^13.1.6",
+    "next": "^13.1.6",
+    "pm2": "^5.2.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.13.0",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "eslint": "^8.33.0",
+    "eslint-config-next": "^13.1.6",
+    "husky": "^8.0.3",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.8.4",
+    "typescript": "4.9.5"
+  }
+}
