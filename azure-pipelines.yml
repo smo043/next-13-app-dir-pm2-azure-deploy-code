@@ -1,0 +1,83 @@
+pool:
+  name: ### PoolName
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        steps:
+          - task: UseNode@1
+            displayName: 'Use Node 18.x'
+            inputs:
+              version: '18.x'
+              checkLatest: true
+          
+          - task: YarnInstaller@3
+            displayName: 'Use Yarn 1.x'
+            inputs:
+              versionSpec: '1.x'
+              checkLatest: true
+          
+          - script: yarn install
+            displayName: 'Install Dependencies'
+          
+          - script: |
+            echo "=== Running type checks ==="
+            yarn check:types
+
+            echo "=== Running format checks ==="
+            yarn format:check
+
+            echo "=== Running lint ==="
+            yarn lint
+          displayName: 'Run Quality Checks'
+          
+          - script: yarn build
+            displayName: 'Build App'
+          
+          - script: yarn install --production
+            displayName: 'Install Prod Dependencies'
+          
+          - task: CopyFiles@2
+            displayName: 'Copy Prod Files'
+            inputs:
+              Content: |
+                .next/**
+                yarn.lock
+                node_modules/**
+                public/**
+                package.json
+                ecosystem.config.js
+                next.config.js
+              TargetFolder: '$(Build.ArtifactStagingDirectory)'
+          
+          - task: ArchiveFiles@2
+            displayName: 'Archive Prod Files'
+            inputs:
+              rootFolderOrFile: '$(Build.ArtifactStagingDirectory)'
+              includeRootFolder: false,
+              archiveType: 'zip',
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+              replaceExistingArchive: true
+          
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Prod Files'
+            inputs:
+              PathToPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+              ArtifactName: 'drop',
+              publishLocation: 'Container'
+          
+          - task: AzureRmWebAppDeployment@4
+            displayName: 'Azure web app deployment'
+            inputs:
+              azureSubscription: ### Service Principal Connection
+              ResourceGroupName: ### Resource group Name
+              appType: 'webAppLinux',
+              WebAppName: ### App Service Name
+              deployToSlotOrASE: true ### For slot deployments, usefult for A/B Testing
+              SlotName: 'production' ### Can be a specific env slot name
+              packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
+              enableCustomDeployment: true
+              DeploymentType: 'zipDeploy'
+              StartUpCommand: 'yarn start' ### in package.json we are calling pm2 start, instead of native next js start command.
+
