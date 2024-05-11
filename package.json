@@ -15,7 +15,6 @@
     "format:check": "yarn format:nowrite --list-different",
     "format:nowrite": "prettier --ignore-path .gitignore \"**/*.+(js|ts|jsx|tsx|html|css|scss|json)\"",
     "lint": "next lint",
-    "prepare": "node -e \"try { require('husky').install() } catch(e) { if (e.code !== 'MODULE_NOT_FOUND') throw e}\"",
     "start": "pm2 list && pm2-runtime --no-demon start ecosystem.config.js",
     "pre:commit": "run-p check:types format:check lint"
   },
@@ -29,11 +28,11 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "eslint": "latest",
+    "eslint": "^8.57.0",
     "eslint-config-next": "latest",
-    "husky": "latest",
     "npm-run-all": "latest",
     "prettier": "latest",
     "typescript": "latest"
-  }
+  },
+  "packageManager": "yarn@4.2.2"
 }
